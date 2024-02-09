@@ -9,9 +9,8 @@
 
 #include <emscripten/emscripten.h>
 
-// Compilation and run commands
+// Compilation
 // emcc -o game.html main.c -Os -Wall /opt/webRaylib/raylib-master/src/web/libraylib.a -I. -I /opt/webRaylib/raylib-master/src -L. -L /opt/webRaylib/raylib-master/src/web -s USE_GLFW=3 --shell-file ./shell.html -DPLATFORM_WEB -sGL_ENABLE_GET_PROC_ADDRESS
-// emrun game.html        
 
 // Resolution of the grid that will be calculated
 const int gridWidth = 1024;
@@ -22,9 +21,6 @@ int maxIterations = 4098;
 
 // Initial size of the pixels
 int pixelSize = 64;
-
-// NOT IN USE
-int symetry = 0;
 
 // Default zoom and offset
 double zoom = 0.0015;
@@ -39,14 +35,8 @@ clock_t begin;
 clock_t end;
 double time_spent = 0;
 
-//linear mapping: x in [xMin, xMax] to y in [outMin, outMax]
-double map(double x, double xMin, double xMax, double outMin, double outMax)
-{
-    return (x - xMin) * (outMax - outMin) / (xMax - xMin) + outMin;
-}
-
 // Mandelbrot escape time algorithm
-int calculateItterations (double firstX, double firstY, int maxIterations)
+int calculateItterations(double firstX, double firstY, int maxIterations)
 {
     // Adjust for viewpoint
     firstX *= zoom;
@@ -63,20 +53,19 @@ int calculateItterations (double firstX, double firstY, int maxIterations)
     double y = firstY;
 
     // Escape clause
-    while (x*x + y*y <= 2*2 && iterration < maxIterations)
+    while (x * x + y * y <= 4 && iterration < maxIterations)
     {
         // Mandelbrot formula
-        double newX =  x * x - y * y + firstX;
+        double newX = x * x - y * y + firstX;
         double newY = 2 * x * y + firstY;
 
         // Simple loop detection
         if (
             (newX == x && newY == y) ||
-            (newX == firstX && newY == firstY)
-        )
+            (newX == firstX && newY == firstY))
         {
             iterration = maxIterations;
-            //puts("Broke");
+            // puts("Broke");
             break;
         }
 
@@ -93,33 +82,14 @@ int calculateItterations (double firstX, double firstY, int maxIterations)
 
 void UpdateDrawFrame()
 {
-    // ------------------------
-    // THE PROBLEM WITH SYMETRY
-    // The problem with symetry is that it only works correctly when the x axis
-    // aligns perfectly on a row of pixels or exactly between two rows of pixels.
-    // --------------------------------------------------------------------------
-
-    // (j -gridHeight/2) * zoom + yOffset == 0
-    // j * zoom - gridHeight/2 * zoom + yOffset == 0
-    // j * zoom == gridHeight/2 * zoom - yOffset
-    // j == (gridHeight/2 - yOffset)/zoom
-
-    // TAKE INTO A COUNT PIXEL SIZE
-
-    int startHeight = 0 /* (symetry == 1? (gridHeight/2 - yOffset)/zoom : 0) */;
-    int endHeight = gridHeight;
-
     // Run the escape time algorithm for each pixel in the current resolution
-    for (
-        int j = startHeight;
-        j < endHeight; // Other case here
-        j+=pixelSize)
+    for (int j = 0; j < gridHeight; j += pixelSize)
     {
-        for (int i = 0; i < gridWidth; i+=pixelSize)
+        for (int i = 0; i < gridWidth; i += pixelSize)
         {
             if (grid[i][j] == -1)
             {
-                grid[i][j] = calculateItterations(i-gridWidth/2, j-gridHeight/2, maxIterations);
+                grid[i][j] = calculateItterations(i - gridWidth / 2, j - gridHeight / 2, maxIterations);
             }
         }
     }
@@ -128,17 +98,15 @@ void UpdateDrawFrame()
     ClearBackground(RAYWHITE);
 
     // Draw the pixels in different colors based on the number of itterations before escape
-    for (int i = 0; i < gridWidth; i+=pixelSize)
+    for (int i = 0; i < gridWidth; i += pixelSize)
     {
-        for (int j = 0; j < gridHeight; j+=pixelSize) {
+        for (int j = 0; j < gridHeight; j += pixelSize)
+        {
             DrawRectangle(
                 i, j, pixelSize, pixelSize,
                 ColorFromHSV(
-                    //map(grid[i][j], 0, maxIterations, 0, 360),
                     (int)powf((grid[i][j] / (double)maxIterations) * 360, 1.5) % 360,
-                    //1, grid[i][j] == maxIterations? 0: 1
-                    1, 1 - grid[i][j] / (double)maxIterations
-            ));
+                    1, 1 - grid[i][j] / (double)maxIterations));
         }
     }
 
@@ -168,7 +136,8 @@ void UpdateDrawFrame()
     }
 }
 
-int main() {
+int main()
+{
 
     // ------------------------------------------
     // Different zooms and offsets that look good
@@ -185,12 +154,12 @@ int main() {
     // zoom = 0.0002;
     // xOffset = -0.6;
     // yOffset = -0.5;
-    
+
     // More
     // zoom = 0.00004;
     // xOffset = -0.52;
     // yOffset = -0.52;
-    
+
     // Even more
     // zoom = 0.00001;
     // xOffset = -0.52;
@@ -204,13 +173,6 @@ int main() {
     // Start the timer
     begin = clock();
 
-    // NOT IN USE
-    // Check if the symetry is possible
-    if (gridHeight/2 * zoom + yOffset > 0 && -gridHeight/2 * zoom + yOffset < 0)
-    {
-        symetry = -1 + (yOffset > 0) * 2;
-    }
-    
     // Initialize the grid
     for (int i = 0; i < gridWidth; i++)
     {
