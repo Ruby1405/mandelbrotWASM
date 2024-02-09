@@ -59,8 +59,9 @@ int calculateItterations (double firstX, double firstY, int maxIterations)
     // Coefficient of i
     double y = firstY;
 
-    double newX = 0;
-    double newY = 0;
+    // I don't know what initial values to use
+    double newX = firstX;
+    double newY = firstY;
 
     // Escape clause
     while (x + y <= 4 && iterration < maxIterations)
