@@ -23,9 +23,6 @@ int maxIterations = 4098;
 // Initial size of the pixels
 int pixelSize = 64;
 
-// NOT IN USE
-int symetry = 0;
-
 // Default zoom and offset
 double zoom = 0.0015;
 double xOffset = 0;
@@ -93,33 +90,15 @@ int calculateItterations (double firstX, double firstY, int maxIterations)
 
 void UpdateDrawFrame()
 {
-    // ------------------------
-    // THE PROBLEM WITH SYMETRY
-    // The problem with symetry is that it only works correctly when the x axis
-    // aligns perfectly on a row of pixels or exactly between two rows of pixels.
-    // --------------------------------------------------------------------------
-
-    // (j -gridHeight/2) * zoom + yOffset == 0
-    // j * zoom - gridHeight/2 * zoom + yOffset == 0
-    // j * zoom == gridHeight/2 * zoom - yOffset
-    // j == (gridHeight/2 - yOffset)/zoom
-
-    // TAKE INTO A COUNT PIXEL SIZE
-
-    int startHeight = 0 /* (symetry == 1? (gridHeight/2 - yOffset)/zoom : 0) */;
-    int endHeight = gridHeight;
-
     // Run the escape time algorithm for each pixel in the current resolution
-    for (
-        int j = startHeight;
-        j < endHeight; // Other case here
-        j+=pixelSize)
+    for (int j = 0;j < gridHeight;j+=pixelSize)
     {
         for (int i = 0; i < gridWidth; i+=pixelSize)
         {
             if (grid[i][j] == -1)
             {
-                grid[i][j] = calculateItterations(i-gridWidth/2, j-gridHeight/2, maxIterations);
+                grid[i][j] = calculateItterations(
+                    i-gridWidth/2, j-gridHeight/2, maxIterations);
             }
         }
     }
@@ -134,9 +113,7 @@ void UpdateDrawFrame()
             DrawRectangle(
                 i, j, pixelSize, pixelSize,
                 ColorFromHSV(
-                    //map(grid[i][j], 0, maxIterations, 0, 360),
                     (int)powf((grid[i][j] / (double)maxIterations) * 360, 1.5) % 360,
-                    //1, grid[i][j] == maxIterations? 0: 1
                     1, 1 - grid[i][j] / (double)maxIterations
             ));
         }
@@ -203,13 +180,6 @@ int main() {
 
     // Start the timer
     begin = clock();
-
-    // NOT IN USE
-    // Check if the symetry is possible
-    if (gridHeight/2 * zoom + yOffset > 0 && -gridHeight/2 * zoom + yOffset < 0)
-    {
-        symetry = -1 + (yOffset > 0) * 2;
-    }
     
     // Initialize the grid
     for (int i = 0; i < gridWidth; i++)
