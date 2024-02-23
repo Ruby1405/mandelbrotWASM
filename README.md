@@ -12,7 +12,7 @@ This was a semi-explorative project that was done as a part of 2 week research-i
 ## Replication
 Follow [Raylib - Working for Web](https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5))
 I don't remember if I used the makefile or if I compiled in command line (I might have done both)
-Compile without ASYNCIFY
+Compile without ASYNCIFY.
 I found the flag `-sGL_ENABLE_GET_PROC_ADDRESS` was also needed.
 
 ## Running
