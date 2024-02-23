@@ -2,6 +2,13 @@
 Requires a http server to start.
 For now scaling or translating the view requires recompiling.
 
+## Description
+This was a semi-explorative project that was done as a part of 2 week research-internship in Japan. The task was to create a graphical program that could be run on android. As I was acquainted to the raylib library I decided to write the mandelbrott set in C using Raylib for graphics and compiling it to web assembly to make it cross platform.
+
+## Dependencies
+**For running:** A http server
+**For recompiling:** Emscripten, Raylib
+
 ## Replication
 Follow [Raylib - Working for Web](https://github.com/raysan5/raylib/wiki/Working-for-Web-(HTML5))
 I don't remember if I used the makefile or if I compiled in command line (I might have done both)
